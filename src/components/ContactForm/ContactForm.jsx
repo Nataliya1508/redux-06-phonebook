@@ -1,47 +1,54 @@
 import { useState } from 'react';
+import { addContacts } from 'redux/slice';
+// import { getContacts } from 'redux/selectors';
+import { useDispatch, useSelector } from 'react-redux';
+
 import PropTypes from 'prop-types';
 import { nanoid } from 'nanoid';
 import styles from './ContactForm.module.css';
 
-export default function ContactForm({onAddContact}) {
-    const [name, setName] = useState('');
-    const [number, setNumber] = useState('');
 
+export default function ContactForm() {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
 
+  const contacts = useSelector(state => state.contacts.items);
+  const dispatch = useDispatch();
 
-     const nameId = nanoid();
+ const nameId = nanoid();
     const numberId = nanoid();
 
+  const handleFormSubmit = event => {
+    event.preventDefault();
+    const addNewContact = { name, number, id: nanoid() };
 
-   const handleChangeForm = (e) => {
-        const { name, value } = e.target;
-       
-       switch (name) {
-           case "name":
-               setName(value);
-               break;
-           
-           case "number":
-               setNumber(value);
-               break;
-           default:
-               return;
-}
+    if (contacts.find(contact => contact.name === name)) {
+      alert(`${name} is already in contacts`)
+    } else {
+      dispatch(addContacts(addNewContact));
     }
 
-     const handleFormSubmit = e => {
-         e.preventDefault()
+    setName('');
+    setNumber('');
+  };
 
-             onAddContact({id: nanoid(), name, number});
-         
-             setName('')
-             setNumber('')
-            
-}
+  const handleChangeForm = event => {
+    const { name, value } = event.currentTarget;
 
+    switch (name) {
+      case 'name':
+        setName(value);
+        break;
+      case 'number':
+        setNumber(value);
+        break;
+      default:
+        break;
+    }
+  };
 
-    return (
-        <div className={styles.phonebook}>
+  return (
+     <div className={styles.phonebook}>
             <h2>Phonebook</h2>
             <form onSubmit={handleFormSubmit}>
                 <label htmlFor={nameId}>Name</label>
@@ -75,12 +82,10 @@ export default function ContactForm({onAddContact}) {
                 <br />
             </form>
         </div>
-    );
+  );
 };
 
 ContactForm.propTypes = {
-    onAddContact: PropTypes.func.isRequired,
-    // onCheck: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
 
- 
